@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <base target="_top"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Money Tracker By DIMZ</title>
+<title>Tracker Money By Dimz</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
@@ -54,18 +54,21 @@ body{background:var(--bg);color:var(--text);min-height:100vh;transition:backgrou
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}.toast.error{background:var(--red);color:#fff}.toast.success{background:var(--green);color:#fff}
 .page{display:none}.page.active{display:block}
 .grid-kat{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-.kat-box{background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:10px 5px;text-align:center;cursor:pointer;transition:all .2s}
-.kat-box:hover{border-color:var(--primary)}.kat-box.active{background:rgba(99,102,241,.1);border-color:var(--primary);font-weight:700;color:var(--primary)}
-.kat-box .ico{font-size:20px;display:block;margin-bottom:4px}.kat-box .txt{font-size:11px}
+.kat-box{background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:10px 5px;text-align:center;cursor:pointer;transition:all .1s ease-in-out; user-select:none;}
+.kat-box:hover{border-color:var(--primary)}
+.kat-box:active{transform:scale(0.92); background:var(--border);}
+.kat-box.active{background:rgba(99,102,241,.1);border-color:var(--primary);font-weight:700;color:var(--primary); transform:scale(1.05);}
+.kat-box .ico{font-size:20px;display:block;margin-bottom:4px;pointer-events:none;}.kat-box .txt{font-size:11px;pointer-events:none;}
 .progress-bar{background:var(--border);border-radius:10px;height:8px;margin-top:8px;overflow:hidden}
 .progress-fill{background:var(--green);height:100%;border-radius:10px;}
+.btn-group-sm{display:flex;gap:4px;}
 @media(max-width:768px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main{margin-left:0;padding:16px;padding-bottom:100px}.menu-btn{display:grid}.fab{bottom:20px;right:20px;padding:14px 20px;font-size:14px;}}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;display:none}.overlay.active{display:block}
 </style>
 </head>
 <body data-theme="light">
 <div class="sidebar" id="sidebar">
-  <div class="logo"><div class="logo-icon">💎</div><span>DIMZ Ultimate</span></div>
+  <div class="logo"><div class="logo-icon">💎</div><span>Tracker By DIMZ</span></div>
   <div class="nav-item active" data-page="dashboard" onclick="navTo('dashboard',this)"><span class="ico">📊</span> Dashboard</div>
   <div class="nav-item" data-page="rekening" onclick="navTo('rekening',this)"><span class="ico">🏦</span> Rekening & Aset</div>
   <div class="nav-item" data-page="utang" onclick="navTo('utang',this)"><span class="ico">🤝</span> Utang & Piutang</div>
@@ -88,37 +91,30 @@ body{background:var(--bg);color:var(--text);min-height:100vh;transition:backgrou
     </div>
   </div>
 
-  <!-- DASHBOARD -->
   <div class="page active" id="page-dashboard">
-    <!-- Tampilan Total Aset & Rekening -->
     <div class="card" style="background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;margin-bottom:20px">
       <div class="card-head" style="border-bottom:none;padding-bottom:0"><h3>Total Kekayaan (Net Worth)</h3></div>
       <div style="padding:10px 22px 20px"><div id="vNetWorth" style="font-size:28px;font-weight:800">Rp 0</div></div>
     </div>
-
     <div class="rek-scroll" id="dashRekening"></div>
-    
     <div class="card" style="background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff"><div class="card-head" style="border-bottom:none"><h3>💡 Penasihat Keuangan</h3></div><div style="padding:0 22px 20px"><p id="advisorMsg" style="font-size:14px;line-height:1.5;opacity:.9">Menganalisis...</p></div></div>
     <div class="card"><div class="card-head"><h3>Top 5 Pengeluaran</h3><button class="btn btn-ghost btn-sm" onclick="downloadPDF()">📄 PDF</button></div><div class="chart-wrap"><canvas id="chartPengeluaran"></canvas></div></div>
     <div class="card"><div class="card-head"><h3>Transaksi Bulan Ini</h3></div><div id="dashTransaksi"></div></div>
   </div>
 
-  <!-- REKENING -->
   <div class="page" id="page-rekening"><div class="card"><div class="card-head"><h3>Daftar Rekening</h3><button class="btn btn-primary btn-sm" onclick="openModal('mRekening')">+ Rekening</button></div><div id="listRekening"></div></div></div>
+  
+  <!-- HALAMAN UTANG & PIUTANG -->
+  <div class="page" id="page-utang">
+    <div class="card">
+      <div class="card-head"><h3>Utang & Piutang</h3><button class="btn btn-primary btn-sm" onclick="openModal('mUtang')">+ Tambah</button></div>
+      <div id="listUtang"></div>
+    </div>
+  </div>
 
-  <!-- UTANG -->
-  <div class="page" id="page-utang"><div class="card"><div class="card-head"><h3>Utang & Piutang</h3><button class="btn btn-primary btn-sm" onclick="openModal('mUtang')">+ Tambah</button></div><div id="listUtang"></div></div></div>
-
-  <!-- TARGET TABUNGAN -->
   <div class="page" id="page-target"><div class="card"><div class="card-head"><h3>Target Tabungan</h3><button class="btn btn-primary btn-sm" onclick="openModal('mTarget')">+ Target</button></div><div id="listTarget"></div></div></div>
-
-  <!-- WISHLIST -->
   <div class="page" id="page-wishlist"><div class="card"><div class="card-head"><h3>Wishlist (Jeda 24 Jam)</h3><button class="btn btn-primary btn-sm" onclick="openModal('mWishlist')">+ Barang</button></div><div id="listWishlist"></div></div></div>
-
-  <!-- TAGIHAN BULANAN -->
   <div class="page" id="page-tagihan"><div class="card"><div class="card-head"><h3>Tagihan & Cicilan</h3><button class="btn btn-primary btn-sm" onclick="openModal('mTagihan')">+ Tagihan</button></div><div id="listTagihan"></div></div></div>
-
-  <!-- KATEGORI -->
   <div class="page" id="page-kategori"><div class="card"><div class="card-head"><h3>Daftar Kategori</h3><button class="btn btn-primary btn-sm" onclick="openModal('mKategori')">+ Kategori</button></div><div id="listKategori"></div></div></div>
 </div>
 
@@ -130,7 +126,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;transition:backgrou
   <div class="field"><label>Tanggal</label><input type="date" id="trxTanggal" /></div>
   <div class="field"><label>Tipe</label><select id="trxTipe" onchange="renderKatGrid()"><option value="Pengeluaran">Pengeluaran</option><option value="Pemasukan">Pemasukan</option></select></div>
   <div class="field"><label>Rekening (Dompet)</label><select id="trxRekID"></select></div>
-  <div class="field"><label>Kategori</label><div class="grid-kat" id="trxKatGrid"></div></div>
+  <div class="field"><label>Kategori (Klik kotak)</label><div class="grid-kat" id="trxKatGrid"></div></div>
   <div class="field"><label>Nominal (Rp)</label><input type="number" id="trxNominal" placeholder="0" /></div>
   <div class="field"><label>Catatan</label><input type="text" id="trxCatatan" placeholder="Opsional" /></div>
   <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal('mTransaksi')">Batal</button><button class="btn btn-primary" onclick="simpanTransaksi()">Simpan</button></div>
@@ -174,14 +170,25 @@ body{background:var(--bg);color:var(--text);min-height:100vh;transition:backgrou
   <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal('mWishlist')">Batal</button><button class="btn btn-primary" onclick="simpanWishlist()">Simpan</button></div>
 </div></div>
 
+<!-- MODAL UTANG (Tambah & Edit) -->
 <div class="modal-back" id="mUtang"><div class="modal">
-  <h3>Tambah Utang/Piutang</h3>
+  <h3 id="utangTitle">Tambah Utang/Piutang</h3>
+  <input type="hidden" id="utID" />
   <div class="field"><label>Tipe</label><select id="utTipe"><option value="Utang">Utang (Saya Pinjam)</option><option value="Piutang">Piutang (Saya Pinjamkan)</option></select></div>
   <div class="field"><label>Nama Pihak</label><input type="text" id="utNama" /></div>
   <div class="field"><label>No WhatsApp</label><input type="text" id="utWA" placeholder="8123456789" /></div>
-  <div class="field"><label>Nominal (Rp)</label><input type="number" id="utNominal" /></div>
+  <div class="field"><label>Nominal Pokok (Rp)</label><input type="number" id="utNominal" /></div>
+  <!-- Tambahan Form Edit: Tambah Nominal -->
+  <div class="field" id="fieldTambahNominal" style="display:none; background:rgba(99,102,241,.1); padding:10px; border-radius:10px;">
+    <label>Mau menambah utang baru? (Isi jika iya)</label>
+    <input type="number" id="utTambahNominal" placeholder="Nominal Tambahan (Rp)" />
+  </div>
+  <div class="field"><label>Tanggal Pinjam</label><input type="date" id="utTanggal" /></div>
   <div class="field"><label>Jatuh Tempo</label><input type="date" id="utJatuh" /></div>
-  <div class="modal-actions"><button class="btn btn-ghost" onclick="closeModal('mUtang')">Batal</button><button class="btn btn-primary" onclick="simpanUtang()">Simpan</button></div>
+  <div class="modal-actions">
+    <button class="btn btn-ghost" onclick="closeModal('mUtang')">Batal</button>
+    <button class="btn btn-primary" onclick="simpanUtang()">Simpan</button>
+  </div>
 </div></div>
 
 <div class="modal-back" id="mBayar"><div class="modal">
@@ -192,7 +199,7 @@ body{background:var(--bg);color:var(--text);min-height:100vh;transition:backgrou
 
 <div class="toast" id="toast"></div>
 <script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbxsouVbcJ3B0rDl1Hv8livCUU6EoQmOBKjqbeA2tScQwF6XqdOcsjJGd7E0eiTE8cWL/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbypgJoQC0EJ0ImTZt30r4b6SDpgo2Mrc5aW1qmpF0i9sosTUnEguky8ahlwe5Jc3c0v/exec';
 const state = { rekening: [], kategori: [], dashboard: null, selectedKat: '', chart: null };
 const $ = id => document.getElementById(id);
 const fmtRp = n => 'Rp ' + (Number(n)||0).toLocaleString('id-ID');
@@ -213,10 +220,9 @@ function callAPI(action, data = {}) {
     script.src = url.toString(); script.onerror = function() { document.body.removeChild(script); delete window[cb]; reject(new Error('Koneksi API Gagal')); };
     document.body.appendChild(script);
   });
-}
-
+  }
 window.addEventListener('DOMContentLoaded', ()=>{
-  const now = new Date(); $('trxTanggal').value = now.toISOString().slice(0,10); $('utJatuh').value = now.toISOString().slice(0,10);
+  const now = new Date(); $('trxTanggal').value = now.toISOString().slice(0,10); $('utTanggal').value = now.toISOString().slice(0,10); $('utJatuh').value = now.toISOString().slice(0,10);
   const jam = now.getHours(); let sapaan = jam < 11 ? "Pagi" : jam < 15 ? "Siang" : jam < 18 ? "Sore" : "Malam";
   $('greeting').textContent = `Selamat ${sapaan}, DIMZ! 👋`;
   const bln = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Ags","Sep","Okt","Nov","Des"];
@@ -227,16 +233,37 @@ window.addEventListener('DOMContentLoaded', ()=>{
   $('filterBulan').addEventListener('change', loadAllData); $('filterTahun').addEventListener('change', loadAllData);
   loadAllData();
 });
-
 function getFilterBulan() { return $('filterTahun').value + '-' + $('filterBulan').value; }
+
 function renderKatGrid(){
-  const tipe = $('trxTipe').value; const filtered = state.kategori.filter(k=>k.Tipe===tipe);
-  state.selectedKat = filtered.length ? filtered[0].ID : '';
-  $('trxKatGrid').innerHTML = filtered.map(k=>`<div class="kat-box ${state.selectedKat===k.ID?'active':''}" onclick="pilihKat('${k.ID}')"><span class="ico">${k.Ikon}</span><span class="txt">${k.Nama}</span></div>`).join('');
+  const tipe = $('trxTipe').value; 
+  const filtered = state.kategori.filter(k=>k.Tipe===tipe);
+  if(filtered.length > 0 && !filtered.find(k=>k.ID === state.selectedKat)) {
+    state.selectedKat = filtered[0].ID; 
+  } else if (filtered.length === 0) {
+    state.selectedKat = '';
+  }
+  
+  $('trxKatGrid').innerHTML = filtered.map(k => {
+    const isActive = state.selectedKat === k.ID ? 'active' : '';
+    return `<div class="kat-box ${isActive}" onclick="pilihKat('${k.ID}')">
+      <span class="ico">${k.Ikon}</span>
+      <span class="txt">${k.Nama}</span>
+    </div>`;
+  }).join('');
 }
 function pilihKat(id){ state.selectedKat = id; renderKatGrid(); }
-function openTrx(){ $('trxTitle').textContent = 'Catat Transaksi'; $('trxID').value = ''; $('trxTanggal').value = new Date().toISOString().slice(0,10); $('trxTipe').value = 'Pengeluaran'; $('trxRekID').innerHTML = state.rekening.map(r=>`<option value="${r.ID}">${r.Nama}</option>`).join(''); renderKatGrid(); $('trxNominal').value = ''; $('trxCatatan').value = ''; openModal('mTransaksi'); }
-function editTrx(id){ const t = state.dashboard.transaksi.find(x=>x.ID===id); if(!t) return; $('trxTitle').textContent = 'Edit Transaksi'; $('trxID').value = t.ID; $('trxTanggal').value = t.Tanggal; $('trxTipe').value = t.Tipe; $('trxRekID').innerHTML = state.rekening.map(r=>`<option value="${r.ID}">${r.Nama}</option>`).join(''); $('trxRekID').value = t.RekID; state.selectedKat = t.KategoriID; renderKatGrid(); $('trxNominal').value = t.Nominal; $('trxCatatan').value = t.Catatan || ''; openModal('mTransaksi'); }
+function openTrx(){ 
+  $('trxTitle').textContent = 'Catat Transaksi'; $('trxID').value = ''; $('trxTanggal').value = new Date().toISOString().slice(0,10); $('trxTipe').value = 'Pengeluaran'; 
+  $('trxRekID').innerHTML = state.rekening.map(r=>`<option value="${r.ID}">${r.Nama}</option>`).join(''); 
+  state.selectedKat = ''; renderKatGrid(); $('trxNominal').value = ''; $('trxCatatan').value = ''; openModal('mTransaksi'); 
+}
+function editTrx(id){ 
+  const t = state.dashboard.transaksi.find(x=>x.ID===id); if(!t) return; 
+  $('trxTitle').textContent = 'Edit Transaksi'; $('trxID').value = t.ID; $('trxTanggal').value = t.Tanggal; $('trxTipe').value = t.Tipe; 
+  $('trxRekID').innerHTML = state.rekening.map(r=>`<option value="${r.ID}">${r.Nama}</option>`).join(''); $('trxRekID').value = t.RekID; 
+  state.selectedKat = t.KategoriID; renderKatGrid(); $('trxNominal').value = t.Nominal; $('trxCatatan').value = t.Catatan || ''; openModal('mTransaksi'); 
+}
 
 function loadAllData(){
   callAPI('getAllData', {bulan: getFilterBulan()}).then(d=>{
@@ -244,12 +271,10 @@ function loadAllData(){
     $('vNetWorth').textContent = fmtRp(d.netWorth);
     $('advisorMsg').textContent = d.advisorMsg;
     
-    // Tampilkan semua dompet di dashboard
     $('dashRekening').innerHTML = d.rekening.map(r=>{ 
       const cls = r.Tipe === 'Bank' ? 'bank' : r.Tipe === 'Cash' ? 'cash' : 'ewallet'; 
       return `<div class="rek-card ${cls}"><h4>${r.Nama}</h4><div class="saldo">${fmtRp(r.SaldoSaatIni)}</div><div style="font-size:11px;opacity:.8;margin-top:5px">${r.Tipe}</div></div>`; 
     }).join('');
-    
     $('listRekening').innerHTML = d.rekening.map(r=>`<div class="item"><div class="item-info"><h4>${r.Nama}</h4><p>${r.Tipe}</p></div><div class="amount">${fmtRp(r.SaldoSaatIni)}</div></div>`).join('');
     
     $('dashTransaksi').innerHTML = d.transaksi.map(t=>{
@@ -259,28 +284,72 @@ function loadAllData(){
 
     $('listTagihan').innerHTML = d.tagihan.map(t=>`<div class="item"><div class="item-info"><h4>${t.Nama}</h4><p>Tgl ${t.TglJatuhTempo} · ${fmtRp(t.Nominal)}</p></div><div style="display:flex;gap:8px;align-items:center"><span class="badge ${t.lunas?'lunas':'belum'}">${t.lunas?'Lunas':'Belum'}</span>${!t.lunas?`<button class="btn btn-primary btn-sm" onclick="bayarTagihan('${t.ID}')">Lunas</button>`:''}</div></div>`).join('') || '<div class="empty">Belum ada tagihan</div>';
 
+    // Render Utang dengan Tombol Edit & Hapus Lengkap
     $('listUtang').innerHTML = d.utangPiutang.map(u=>{
       const lunas = u.Status === 'Lunas' || Number(u.Sisa) === 0; const isUtang = u.Tipe === 'Utang'; let waBtn = '';
-      if (!lunas) { if (isUtang) waBtn = `<button class="btn btn-wa btn-sm" onclick="openBayar('${u.ID}', '${u.NamaPihak}', '${u.NoWA}', '${u.Sisa}')">💬 Bayar</button>`; else waBtn = `<button class="btn btn-wa btn-sm" onclick="tagihWA('${u.NamaPihak}', '${u.NoWA}', '${u.Sisa}', '${u.JatuhTempo}')">💬 Tagih</button>`; }
-      return `<div class="item"><div class="item-info"><h4>${u.NamaPihak} <span class="badge ${isUtang?'belum':'lunas'}">${u.Tipe}</span></h4><p>Sisa: ${fmtRp(u.Sisa)}</p></div><div>${lunas ? '<span class="badge lunas">Lunas</span>' : waBtn}</div></div>`;
+      if (!lunas) { if (isUtang) waBtn = `<button class="btn btn-wa btn-sm" onclick="openBayar('${u.ID}')">💬 Bayar</button>`; else waBtn = `<button class="btn btn-wa btn-sm" onclick="tagihWA('${u.NamaPihak}', '${u.NoWA}', '${u.Sisa}', '${u.JatuhTempo}')">💬 Tagih</button>`; }
+      return `<div class="item">
+        <div class="item-info"><h4>${u.NamaPihak} <span class="badge ${isUtang?'belum':'lunas'}">${u.Tipe}</span></h4><p>Sisa: ${fmtRp(u.Sisa)}</p></div>
+        <div class="btn-group-sm">
+          ${!lunas ? waBtn : '<span class="badge lunas">Lunas</span>'}
+          <button class="btn btn-ghost btn-sm" onclick="editUtang('${u.ID}')">✎</button>
+          <button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="hapusUtang('${u.ID}')">✕</button>
+        </div>
+      </div>`;
     }).join('') || '<div class="empty">Belum ada data</div>';
 
     $('listTarget').innerHTML = d.targetTabungan.map(t=>`<div class="item"><div class="item-info"><h4>${t.NamaTarget}</h4><p>${fmtRp(t.Terkumpul)} / ${fmtRp(t.TargetNominal)}</p><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(100,(t.Terkumpul/t.TargetNominal)*100)}%"></div></div></div><button class="btn btn-primary btn-sm" onclick="nabung('${t.ID}')">Nabung</button></div>`).join('') || '<div class="empty">Belum ada target</div>';
-
     $('listWishlist').innerHTML = d.wishlist.map(w=>`<div class="item"><div class="item-info"><h4>${w.NamaBarang}</h4><p>${fmtRp(w.Harga)}</p></div><button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="hapusWish('${w.ID}')">✕</button></div>`).join('') || '<div class="empty">Wishlist kosong</div>';
-    
     $('listKategori').innerHTML = d.kategori.map(k=>`<div class="item"><div class="item-info"><h4>${k.Ikon} ${k.Nama}</h4><p>${k.Tipe}</p></div><button class="btn btn-ghost btn-sm" style="color:var(--red)" onclick="hapusKat('${k.ID}')">Hapus</button></div>`).join('');
-
-    renderChart(d.grafikPengeluaran);
-  });
-}
-
 function renderChart(data){
   if(state.chart) state.chart.destroy();
   state.chart = new Chart($('chartPengeluaran').getContext('2d'), { type: 'bar', data: { labels: data.map(d=>d.nama), datasets: [{ data: data.map(d=>d.total), backgroundColor: '#ef4444', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
 }
 
-function simpanTransaksi(){ if(!state.selectedKat) return toast('Pilih kategori','error'); const p = { ID: $('trxID').value, Tanggal: $('trxTanggal').value, Tipe: $('trxTipe').value, RekID: $('trxRekID').value, KategoriID: state.selectedKat, Nominal: $('trxNominal').value, Catatan: $('trxCatatan').value }; callAPI('saveTransaksi', p).then(()=>{ closeModal('mTransaksi'); toast('Tersimpan','success'); loadAllData(); }).catch(e=>toast(e.message,'error')); }
+/* ============ CRUD UTANG (BARU) ============ */
+function editUtang(id) {
+  const u = state.dashboard.utangPiutang.find(x=>x.ID===id); if(!u) return;
+  $('utangTitle').textContent = 'Edit Utang/Piutang';
+  $('utID').value = u.ID; $('utTipe').value = u.Tipe; $('utNama').value = u.NamaPihak;
+  $('utWA').value = u.NoWA; $('utNominal').value = u.NominalAwal; $('utTanggal').value = u.Tanggal; $('utJatuh').value = u.JatuhTempo;
+  $('utTambahNominal').value = '';
+  $('fieldTambahNominal').style.display = 'block'; // Munculkan opsi tambah nominal
+  openModal('mUtang');
+}
+function hapusUtang(id) {
+  if(!confirm('Yakin ingin menghapus data utang/piutang ini?')) return;
+  callAPI('hapusUtangPiutang', {id}).then(()=>{ toast('Data dihapus','success'); loadAllData(); });
+}
+  
+    renderChart(d.grafikPengeluaran);
+  });
+  }
+  /* ============ FUNGSI SIMPAN UMUM ============ */
+function simpanUtang(){ 
+  const p = { 
+    ID: $('utID').value, Tipe: $('utTipe').value, NamaPihak: $('utNama').value, NoWA: $('utWA').value, 
+    NominalAwal: $('utNominal').value, Tanggal: $('utTanggal').value, JatuhTempo: $('utJatuh').value,
+    TambahNominal: $('utTambahNominal').value 
+  }; 
+  
+  const apiAction = p.ID ? 'updateUtangPiutang' : 'saveUtangPiutang';
+  callAPI(apiAction, p).then(()=>{ 
+    closeModal('mUtang'); 
+    toast(p.ID ? 'Data diperbarui' : 'Tersimpan','success'); 
+    loadAllData(); 
+  }).catch(e=>toast(e.message,'error')); 
+}
+
+function openTambahUtang(){ 
+  $('utangTitle').textContent = 'Tambah Utang/Piutang'; 
+  $('utID').value = ''; $('utTipe').value = 'Utang'; $('utNama').value = ''; $('utWA').value = '';
+  $('utNominal').value = ''; $('utTambahNominal').value = ''; $('fieldTambahNominal').style.display = 'none'; // Sembunyikan opsi edit
+  $('utTanggal').value = new Date().toISOString().slice(0,10); $('utJatuh').value = new Date().toISOString().slice(0,10);
+  openModal('mUtang'); 
+  }
+  
+/* ============ FUNGSI LAINNYA ============ */
+function simpanTransaksi(){ if(!state.selectedKat) return toast('Klik kotak kategori dulu!','error'); const p = { ID: $('trxID').value, Tanggal: $('trxTanggal').value, Tipe: $('trxTipe').value, RekID: $('trxRekID').value, KategoriID: state.selectedKat, Nominal: $('trxNominal').value, Catatan: $('trxCatatan').value }; callAPI('saveTransaksi', p).then(()=>{ closeModal('mTransaksi'); toast('Tersimpan','success'); loadAllData(); }).catch(e=>toast(e.message,'error')); }
 function hapusTrx(id){ if(!confirm('Hapus?')) return; callAPI('hapusTransaksi',{id}).then(()=>{toast('Dihapus','success'); loadAllData();}); }
 function simpanRekening(){ const p = { Nama: $('rekNama').value, Tipe: $('rekTipe').value, SaldoAwal: $('rekSaldo').value }; callAPI('saveRekening', p).then(()=>{ closeModal('mRekening'); toast('Rekening ditambah','success'); loadAllData(); }); }
 function simpanKategori(){ const p = { Tipe: $('katTipe').value, Nama: $('katNama').value, Ikon: $('katIkon').value }; callAPI('saveKategori', p).then(()=>{ closeModal('mKategori'); toast('Kategori ditambah','success'); loadAllData(); }); }
@@ -291,20 +360,33 @@ function simpanTarget(){ const p = { NamaTarget: $('tgtNama').value, TargetNomin
 function nabung(id){ const nom = prompt("Masukkan nominal nabung:"); if(!nom) return; callAPI('nabungTarget', {id, nominal: nom}).then(()=>{toast('Berhasil nabung','success'); loadAllData();}); }
 function simpanWishlist(){ const p = { NamaBarang: $('wsNama').value, Harga: $('wsHarga').value, TglMasuk: new Date().toISOString().slice(0,10) }; callAPI('saveWishlist', p).then(()=>{ closeModal('mWishlist'); toast('Masuk Wishlist','success'); loadAllData(); }); }
 function hapusWish(id){ if(!confirm('Hapus wishlist?')) return; callAPI('hapusWishlist',{id}).then(()=>{toast('Dihapus','success'); loadAllData();}); }
-function simpanUtang(){ const p = { Tipe: $('utTipe').value, NamaPihak: $('utNama').value, NoWA: $('utWA').value, NominalAwal: $('utNominal').value, Tanggal: new Date().toISOString().slice(0,10), JatuhTempo: $('utJatuh').value }; callAPI('saveUtangPiutang', p).then(()=>{ closeModal('mUtang'); toast('Tersimpan','success'); loadAllData(); }); }
-function openBayar(id, nama, wa, sisa){ $('bayarID').value = id; $('bayarNominal').value = sisa; openModal('mBayar'); }
+
+function openBayar(id){ $('bayarID').value = id; $('bayarNominal').value = ''; openModal('mBayar'); }
 function konfirmasiBayar(){
   const id = $('bayarID').value; const nominal = $('bayarNominal').value; const data = state.dashboard.utangPiutang.find(u => u.ID === id);
+  
+  let nomorBersih = String(data.NoWA || '').replace(/\D/g, '');
+  if (nomorBersih.startsWith('0')) nomorBersih = '62' + nomorBersih.slice(1);
+  if (nomorBersih.startsWith('8')) nomorBersih = '62' + nomorBersih;
+
   callAPI('bayarUtangPiutang', {id, nominal}).then((res)=>{
     closeModal('mBayar'); toast('Pembayaran dicatat','success');
     let pesan = `Halo *${data.NamaPihak}*, saya sudah mencicil utang.\n\n*Dicicil:* ${fmtRp(nominal)}\n`;
     pesan += res.sisa > 0 ? `*Sisa:* ${fmtRp(res.sisa)}\n\nTerima kasih.` : `*Status: LUNAS*\n\nTerima kasih banyak.`;
-    pesan += `\n\n_Pesan via DIMZ Finance_`;
-    window.open(`https://wa.me/${data.NoWA}?text=${encodeURIComponent(pesan)}`, '_blank'); loadAllData();
+    pesan += `\n\n_Pesan via Web Pencatat Keuangan By DIMZ_`;
+    window.open(`https://wa.me/${nomorBersih}?text=${encodeURIComponent(pesan)}`, '_blank'); 
+    loadAllData();
   });
 }
-function tagihWA(nama, wa, sisa, tempo){ let pesan = `Halo *${nama}*, maaf mengganggu.\nMengingatkan pinjaman yang jatuh tempo tgl *${tempo}*.\n\nSisa: *${fmtRp(sisa)}*\n\nMohon dibayarkan jika sudah ada rezeki. Terima kasih.\n\n_Pesan via DIMZ Finance_`; window.open(`https://wa.me/${wa}?text=${encodeURIComponent(pesan)}`, '_blank'); }
+function tagihWA(nama, wa, sisa, tempo){ 
+  let nomorBersih = String(wa || '').replace(/\D/g, '');
+  if (nomorBersih.startsWith('0')) nomorBersih = '62' + nomorBersih.slice(1);
+  if (nomorBersih.startsWith('8')) nomorBersih = '62' + nomorBersih;
+  
+  let pesan = `Halo *${nama}*, maaf mengganggu.\nMengingatkan pinjaman yang jatuh tempo tgl *${tempo}*.\n\nSisa: *${fmtRp(sisa)}*\n\nMohon dibayarkan jika sudah ada rezeki. Terima kasih.\n\n_Pesan via Web Pencatatan Keuangan By DIMZ_`; 
+  window.open(`https://wa.me/${nomorBersih}?text=${encodeURIComponent(pesan)}`, '_blank'); 
+}
 function downloadPDF(){ callAPI('generatePDF', {bulan: getFilterBulan()}).then(url=>window.open(url,'_blank')); }
 </script>
 </body>
-</html>
+</html>a
